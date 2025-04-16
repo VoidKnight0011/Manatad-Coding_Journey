@@ -1,114 +1,168 @@
-#include<stdio.h>
-#include<stdlib.h>
+// Online C compiler to run C program online
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef struct Node{
     int value;
-   struct Node *next;
-}Node;
+    struct Node *next;
+} Node;
 
-void displayList(Node *);
-Node* createNode(int);
-void insertAtBeginning(Node**, int)V8,  ;
+Node *createNode(int);
+void insertAtStart(Node**, int);
 void insertAtEnd(Node**, int);
+void insertAtPosition(Node**, int, int);
+void displayList(Node*);
+void promptValue(int*);
+void freeList(Node**);
 
-int main(){
-int choice;
-Node* head = NULL;
-    printf("Linked Listers!\n");
-    int subChoice, value, pos;
-    do{
-    printf("1. Display List\n2. Insert Node\n");
-    printf("Pick a Choice: ");
-    scanf("%d", &choice);
+int main() {
+    Node *head = NULL;
     
+    printf("Linked Lists:\n");
+    do{
+        int choice;
+        printf("1. Display List\n2. Insert At Position\n0. End Program\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
         switch(choice){
-            case 0:
-            printf("Exiting Program");
-            exit(0);
-            break;
-            
             case 1:
             displayList(head);
             break;
-            
             case 2:
-            printf("Where to Insert?\n");
-            printf("1. Beginning\n2. At Position\n3. Last\n");
-            printf("Enter Your Choice: ");
-            scanf("%d", &subChoice);
-            
-            printf("\nEnter value to be inserted: ");
-            scanf("%d", &value);
-                switch(subChoice){
-                case 1:
-                insertAtBeginning(&head, value);
-                break;
-                
-                case 2:
-                printf("Enter position to insert: ");
-                scanf("%d", &pos);
-                // Insert at Position func
-                break;
-                
-                case 3:
-                insertAtEnd(&head, value);
-                break;
-                }
-            break;    
-            
-            default:
-            printf("Unknown");
+                int reChoice;
+                int value;
+                 printf("\nWhere to insert?\n");
+                 printf("1. Start\n2. End\n3. Position\n0. Clear List\n");
+                 printf("Enter choice: ");
+                scanf("%d", &reChoice);
+                 switch(reChoice){
+                     case 1:
+                     promptValue(&value);
+                     insertAtStart(&head, value);
+                     break;
+                     
+                     case 2:
+                     promptValue(&value);
+                     insertAtEnd(&head, value);
+                     break;
+                     
+                     case 3:
+                     promptValue(&value);
+                     int position;
+                     printf("What position to insert: ");
+                     scanf("%d", &position);
+                     if(position == 1) insertAtStart(&head, value);
+                     else if(position < 1) {
+                         printf("Invalid Position!\n\n");
+                         break;
+                     }
+                     else insertAtPosition(&head, value, position);
+                     break;
+                     
+                     case 0:
+                     freeList(&head);
+                     break;
+                 }
+                 break;
+                 
+            case 0:
+            exit(0);
             break;
         }
-    
     }while(1);
+
     return 0;
 }
 
-void displayList(Node *head){
-    Node *temp = head;
-    
-    if(temp == NULL){
-        printf("The List is Empty\n\n");
-        return;
-    }
-    
-    while(temp != NULL){
-    printf("%d -> ", temp->value);
-    temp = temp->next;
-    } printf("NULL\n\n");
-}
-
-Node* createNode(int value){
+Node *createNode(int value){
     Node *newNode = (Node*)malloc(sizeof(Node));
-    if(newNode == NULL){
-    printf("Memory Allocation Failed!");
-    exit(1);
-    }
-    
+        if(newNode == NULL){
+            printf("Memory Allocation Failed!");
+            exit(1);
+        }
+        
     newNode->value = value;
     newNode->next = NULL;
     
     return newNode;
 }
 
-void insertAtBeginning(Node **head, int value){
+void promptValue(int *value){
+    printf("Enter value to be inserted: ");
+    scanf("%d", &(*value));
+}
+
+void insertAtStart(Node **head, int value){
     Node *newNode = createNode(value);
+    
     newNode->next = *head;
     *head = newNode;
-    printf("Node inserted at the Beginning\n\n");
+    
+    printf("Inserted %d at the beginning\n\n", value);
 }
 
 void insertAtEnd(Node **head, int value){
+    if(*head == NULL){
+        insertAtStart(head, value);
+        return;
+    }
+    Node *newNode = createNode(value);
+        Node *current = *head;
+    while(current->next != NULL){
+        current = current->next;
+    }
+    
+    current->next = newNode;
+    
+    printf("Inserted %d at the end\n\n", value);
+}
+
+void insertAtPosition(Node **head, int value, int position){
     Node *newNode = createNode(value);
     
-    if(*head == NULL) *head = newNode;
-    else{
-    Node *temp = *head;
-        while(temp->next != NULL){
-        temp = temp->next;
-        } temp->next = newNode;
-        
-        printf("Node inserted at end\n\n");
-    } 
+    Node* current = *head;
+    int cpos = 1;
+    while (current != NULL && cpos < position - 1){
+        if(current->next == NULL){
+            current->next = newNode;
+            printf("Inserted %d at the end\n\n", value);
+            return;
+        }
+        current = current->next;
+        cpos++;
+    }
+    
+    if(current == NULL){
+        printf("Position not found\n\n");
+        return;
+    }
+    
+    newNode->next = current->next;
+    current->next = newNode;
+    
+    printf("Inserted %d at position %d\n\n", value, position);
+}
+
+void displayList(Node *head){
+    if(head == NULL){
+        printf("The List is empty!\n\n");
+        return;
+    }
+    
+    Node *current = head;
+    
+    while(current != NULL){
+        printf("%d -> ", current->value);
+        current = current->next;
+    } printf("NULL\n\n");
+}
+
+void freeList(Node **head){
+    Node *current = *head;
+    while(current != NULL){
+        Node *temp = current;
+        current = current->next;
+        free(temp);
+    }
+    *head = NULL;
 }
